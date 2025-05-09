@@ -1,9 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const activities = ref(['makan', 'mandi', 'olahraga', 'tidur', 'kuliah'])
 const newActivity = ref('')
 const doneActivities = ref(new Set())
+const showIncompleteOnly = ref(false)
 
 function addActivity() {
   if (newActivity.value.trim() !== '') {
@@ -15,6 +16,7 @@ function addActivity() {
 function removeActivity(index) {
   activities.value.splice(index, 1)
   doneActivities.value.delete(index)
+  // Adjust doneActivities set for shifted indices
   const newDone = new Set()
   doneActivities.value.forEach(i => {
     if (i > index) {
@@ -33,15 +35,25 @@ function toggleDone(index) {
     doneActivities.value.add(index)
   }
 }
+
+const filteredActivities = computed(() => {
+  if (showIncompleteOnly.value) {
+    return activities.value.filter((_, index) => !doneActivities.value.has(index))
+  }
+  return activities.value
+})
 </script>
 
 <template>
   <div>
     <h2>Todo List</h2>
+    <button @click="showIncompleteOnly = !showIncompleteOnly">
+      {{ showIncompleteOnly ? 'Tampilkan Semua' : 'Tampilkan Belum Selesai' }}
+    </button>
     <ul>
-      <li v-for="(activity, index) in activities" :key="index">
+      <li v-for="(activity, index) in filteredActivities" :key="index">
         <input type="checkbox" :checked="doneActivities.has(index)" @change="toggleDone(index)" />
-        <span :style="{ textDecoration: doneActivities.has(index) ? 'line-through' : 'none' }">{{ activity }}</span>
+        <span>{{ activity }}</span>
         <button @click="removeActivity(index)">Hapus</button>
       </li>
     </ul>
