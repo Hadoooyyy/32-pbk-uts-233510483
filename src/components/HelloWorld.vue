@@ -15,7 +15,6 @@ function addActivity() {
 function removeActivity(index) {
   activities.value.splice(index, 1)
   doneActivities.value.delete(index)
-  // Adjust doneActivities set for shifted indices
   const newDone = new Set()
   doneActivities.value.forEach(i => {
     if (i > index) {
@@ -42,7 +41,7 @@ function toggleDone(index) {
     <ul>
       <li v-for="(activity, index) in activities" :key="index">
         <input type="checkbox" :checked="doneActivities.has(index)" @change="toggleDone(index)" />
-        <span>{{ activity }}</span>
+        <span :style="{ textDecoration: doneActivities.has(index) ? 'line-through' : 'none' }">{{ activity }}</span>
         <button @click="removeActivity(index)">Hapus</button>
       </li>
     </ul>
